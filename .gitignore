@@ -10,6 +10,7 @@ ENV/
 *.egg-info/
 dist/
 build/
+.eggs/
 
 # Environment variables
 .env
@@ -40,9 +41,11 @@ data/
 # OS
 .DS_Store
 Thumbs.db
-.serena/
 
-# Project-specific exclusions
-bmad/
-server.py
-MCP_SESSION_ISSUE.md
+# PyPI/Build artifacts
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+*.tar.gz

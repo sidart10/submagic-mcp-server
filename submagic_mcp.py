@@ -1104,5 +1104,10 @@ The AI is analyzing your YouTube video to:
 # Server Lifecycle
 # ==============================================================================
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the MCP server"""
     app.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -22,7 +22,7 @@ pip install -r requirements.txt
 echo 'SUBMAGIC_API_KEY="sk-your-key-here"' > .env
 
 # 4. Test the server
-python test_server.py
+python tests/test_server.py
 ```
 
 Get your API key at: https://app.submagic.co/signup
