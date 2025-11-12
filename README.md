@@ -1,5 +1,7 @@
 # Submagic MCP Server
 
+<!-- mcp-name: io.github.sidart10/submagic-mcp-server -->
+
 AI-powered video editing MCP server for automatic captions, magic zooms, B-rolls, and viral clip generation. Process videos in 107 languages with professional templates and advanced editing features.
 
 **Status:** Production-Ready | **API Coverage:** 100% | **Rating:** 9.5/10
