@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "submagic-mcp-server"
-version = "1.0.3"
+version = "1.1.0"
 description = "AI-powered video editing MCP server with Submagic API integration"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -43,7 +43,9 @@ Issues = "https://github.com/sidart10/submagic-mcp-server/issues"
 [project.scripts]
 submagic-mcp = "submagic_mcp:main"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["submagic_mcp"]
+[tool.setuptools]
+packages = ["submagic_mcp"]
+
+[tool.setuptools.package-dir]
+"" = "src"
 
