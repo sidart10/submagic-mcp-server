@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.sidart10/submagic-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "AI video editing with auto-captions in 107 languages, magic zooms, B-rolls and viral clip generation",
-  "homepage": "https://github.com/sidart10/submagic-mcp-server",
+  "homepage": "https://github.com/sidart10/sub-magic-mcp-server",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sidart10/submagic-mcp-server"
+    "url": "https://github.com/sidart10/sub-magic-mcp-server"
   },
   "author": {
     "name": "Sid Dani",
@@ -17,7 +17,7 @@
     {
       "registryType": "pypi",
       "identifier": "submagic-mcp-server",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "transport": {
         "type": "stdio"
       }
