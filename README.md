@@ -2,83 +2,182 @@
 
 mcp-name: io.github.sidart10/submagic-mcp-server
 
-AI-powered video editing MCP server for automatic captions, magic zooms, B-rolls, and viral clip generation. Process videos in 107 languages with professional templates and advanced editing features.
+Python MCP server for AI-powered video editing using the Submagic API. Supports automatic captions in 107 languages, magic zooms, B-rolls, silence removal, and viral clip generation from YouTube videos.
 
-**Status:** Production-Ready | **API Coverage:** 100% | **Rating:** 9.5/10
+## Features
 
----
+- Automatic AI captions with 98%+ accuracy in 107 languages
+- Magic zooms (AI-powered dynamic emphasis effects)
+- Magic B-rolls (auto-insert stock footage with configurable coverage)
+- Silence removal with three speed presets
+- Filler word removal (removes "um", "uh", "like")
+- Custom B-roll insertion at exact timestamps  
+- YouTube to short-form clips (TikTok, Reels, Shorts)
+- 30+ professional templates (Hormozi, Beast, Sara)
+- Platform-optimized exports (9:16, 1:1, 16:9, 4:5)
+- Post-creation editing and iterative refinement
 
-## Quick Start
+## Installation
 
-### Installation
+### From PyPI
 
 ```bash
-# 1. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Configure API key
-echo 'SUBMAGIC_API_KEY="sk-your-key-here"' > .env
-
-# 4. Test the server
-python tests/test_server.py
+pip install submagic-mcp-server
 ```
 
-Get your API key at: https://app.submagic.co/signup
+### From Source
 
-### Claude Desktop Setup
+```bash
+git clone https://github.com/sidart10/submagic-mcp-server.git
+cd submagic-mcp-server
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-Add to `claude_desktop_config.json`:
+## Configuration
+
+### Get API Key
+
+Sign up at https://app.submagic.co/signup to get your API key.
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "submagic": {
-      "command": "/absolute/path/to/venv/bin/python",
-      "args": ["/absolute/path/to/submagic_mcp.py"],
+      "command": "python",
+      "args": ["-m", "submagic_mcp"],
       "env": {
-        "SUBMAGIC_API_KEY": "sk-your-api-key"
+        "SUBMAGIC_API_KEY": "sk-your-api-key-here"
       }
     }
   }
 }
 ```
 
-Restart Claude Desktop - done!
+If installed from source, use absolute paths:
 
----
+```json
+{
+  "mcpServers": {
+    "submagic": {
+      "command": "/path/to/venv/bin/python",
+      "args": ["/path/to/submagic_mcp.py"],
+      "env": {
+        "SUBMAGIC_API_KEY": "sk-your-api-key-here"
+      }
+    }
+  }
+}
+```
 
-## Features
+Restart Claude Desktop after configuration.
 
-### AI Video Processing
-- **AI Captions** - 107 languages, 98%+ accuracy
-- **Magic Zooms** - AI-powered dynamic zoom effects
-- **Magic B-rolls** - Auto-insert stock footage (0-100% coverage)
-- **Silence Removal** - 3 speeds: natural (0.6+s), fast (0.2-0.6s), extra-fast (0.1-0.2s)
-- **Bad Takes Removal** - AI removes "um", "uh", "like" filler words
-- **Custom B-rolls** - Insert your own videos at exact timestamps
+## Tools
 
-### Social Media Optimization
-- **30+ Templates** - Hormozi series, Beast, Sara, professional styles
-- **Magic Clips** - Auto-generate viral clips from YouTube (15-300s duration)
-- **Platform Presets** - TikTok (15-30s), Reels (30s), Shorts (45-60s)
-- **Custom Themes** - Apply your branded styling
-- **Aspect Ratios** - 9:16, 1:1, 16:9, 4:5 via export dimensions
+### submagic_list_languages
 
-### Professional Workflow
-- **Post-Creation Editing** - Update silence removal, add filler word cleanup, insert B-rolls
-- **Iterative Refinement** - Update and re-export multiple times
-- **Webhook Notifications** - Get notified when processing completes
-- **Custom Dictionary** - Improve transcription accuracy
+Get list of supported languages for transcription.
 
----
+Returns 107+ language codes (e.g., "en", "es", "fr", "cmn_en").
+
+Rate limit: 1000 requests/hour
+
+### submagic_list_templates
+
+Get available video styling templates.
+
+Returns 30+ template names including Hormozi series, Beast, Sara, and others.
+
+Rate limit: 1000 requests/hour
+
+### submagic_create_project
+
+Create a new video project with AI features.
+
+Inputs:
+- `title` (string): Project title
+- `language` (string): Language code from submagic_list_languages
+- `video_url` (string): Public URL to video file
+- `template_name` (string, optional): Template name
+- `user_theme_id` (string, optional): Custom theme UUID
+- `magic_zooms` (boolean, optional): Enable AI zooms (default: true)
+- `magic_brolls` (boolean, optional): Enable auto B-rolls (default: true)
+- `magic_brolls_percentage` (integer, optional): B-roll coverage 0-100 (default: 75)
+- `remove_silence_pace` (string, optional): "natural", "fast", or "extra-fast" (default: "medium")
+- `remove_bad_takes` (boolean, optional): Remove filler words (default: true)
+- `dictionary` (array, optional): Custom words for transcription accuracy
+- `webhook_url` (string, optional): Completion notification URL
+
+Returns project ID and status. Processing takes 2-10 minutes.
+
+Rate limit: 500 requests/hour
+
+### submagic_get_project
+
+Get project details and status.
+
+Inputs:
+- `project_id` (string): UUID from submagic_create_project
+
+Returns complete project information including status, settings, and download URL when complete.
+
+Rate limit: 500 requests/hour
+
+### submagic_update_project
+
+Update project settings after creation.
+
+Inputs:
+- `project_id` (string): Project UUID
+- `remove_silence_pace` (string, optional): Adjust silence removal speed
+- `remove_bad_takes` (boolean, optional): Enable/disable filler word removal
+- `custom_broll_items` (array, optional): Insert custom B-roll clips
+  - Each item: `{startTime: float, endTime: float, userMediaId: string}`
+
+Must re-export project after updating to apply changes.
+
+Rate limit: 100 requests/hour
+
+### submagic_export_project
+
+Export completed project video.
+
+Inputs:
+- `project_id` (string): Project UUID
+- `fps` (integer, optional): Frames per second 1-60 (default: 30)
+- `width` (integer, optional): Video width in pixels 100-4000 (default: 1080)
+- `height` (integer, optional): Video height in pixels 100-4000 (default: 1920)
+- `webhook_url` (string, optional): Export completion notification URL
+
+Returns export status. Use submagic_get_project to get download URL.
+
+Rate limit: 500 requests/hour
+
+### submagic_create_magic_clips
+
+Generate viral short-form clips from YouTube videos.
+
+Inputs:
+- `title` (string): Project title
+- `youtube_url` (string): YouTube video URL
+- `language` (string): Language code
+- `min_clip_length` (integer, optional): Minimum duration in seconds 15-300 (default: 15)
+- `max_clip_length` (integer, optional): Maximum duration in seconds 15-300 (default: 60)
+- `user_theme_id` (string, optional): Custom theme UUID
+- `webhook_url` (string, optional): Completion notification URL
+
+AI analyzes video and generates multiple optimized clips. Processing takes 5-15 minutes.
+
+Rate limit: 500 requests/hour
 
 ## Usage Examples
 
-### Basic: Create Video with AI Captions
+### Create Video with AI Captions
 
 ```python
 submagic_create_project(
@@ -86,178 +185,67 @@ submagic_create_project(
     language="en",
     video_url="https://example.com/video.mp4",
     template_name="Hormozi 2",
-    magic_zooms=True,
-    magic_brolls=True,
     remove_silence_pace="fast"
 )
 ```
 
-### Advanced: Professional Editing Workflow
+### Generate TikTok Clips from YouTube
 
 ```python
-# 1. Create project
-project_id = submagic_create_project(...)
-
-# 2. Wait for processing (2-10 min)
-submagic_get_project(project_id)
-
-# 3. Fine-tune after reviewing
-submagic_update_project(
-    project_id=project_id,
-    remove_silence_pace="extra-fast",  # Tighten pacing
-    remove_bad_takes=True               # Clean filler words
-)
-
-# 4. Export for TikTok (9:16 vertical)
-submagic_export_project(
-    project_id=project_id,
-    width=1080,
-    height=1920,
-    fps=30
-)
-
-# 5. Get download URL
-submagic_get_project(project_id)  # Check for downloadUrl
-```
-
-### Magic Clips: YouTube to TikTok
-
-```python
-# Generate 15-second TikTok clips from YouTube video
 submagic_create_magic_clips(
     title="TikTok Highlights",
     youtube_url="https://youtube.com/watch?v=abc123",
     language="en",
     min_clip_length=15,
-    max_clip_length=30,
-    user_theme_id="your-brand-uuid"  # Optional branding
+    max_clip_length=30
 )
 ```
 
-### Insert Custom B-Roll
+### Export for Instagram Reels (9:16)
 
 ```python
-# Replace boring section with product demo
-submagic_update_project(
-    project_id=project_id,
-    custom_broll_items=[
-        {
-            "startTime": 30.0,
-            "endTime": 45.0,
-            "userMediaId": "your-broll-uuid"  # From Submagic editor
-        }
-    ]
+submagic_export_project(
+    project_id="project-uuid",
+    width=1080,
+    height=1920,
+    fps=30
 )
 ```
 
----
+## Limitations
 
-## Tools Reference
+- Videos must be publicly accessible URLs
+- Maximum file size: 2GB
+- Maximum duration: 2 hours
+- Supported formats: MP4, MOV
+- remove_bad_takes adds 1-2 minutes processing time
+- Some dashboard features not available via API (see docs/API_LIMITATIONS_DISCOVERED.md)
 
-| Tool | Purpose | Rate Limit |
-|------|---------|------------|
-| `submagic_list_languages` | Get 107 language codes | 1000/hour |
-| `submagic_list_templates` | List 30+ templates | 1000/hour |
-| `submagic_create_project` | Create video with AI features | 500/hour |
-| `submagic_get_project` | Check status, get download URLs | 100/hour |
-| `submagic_update_project` | Edit after creation | 100/hour |
-| `submagic_export_project` | Export with custom settings | 500/hour |
-| `submagic_create_magic_clips` | Generate clips from YouTube | 500/hour |
+## Development
 
----
+### Run Tests
 
-## Platform-Specific Exports
-
-### TikTok (9:16 Vertical)
-```python
-submagic_export_project(project_id, width=1080, height=1920)
-```
-
-### Instagram Reels (9:16)
-```python
-submagic_export_project(project_id, width=1080, height=1920)
-```
-
-### Instagram Feed (1:1 Square)
-```python
-submagic_export_project(project_id, width=1080, height=1080)
-```
-
-### YouTube (16:9 Landscape)
-```python
-submagic_export_project(project_id, width=1920, height=1080)
-```
-
-### Instagram Feed Optimized (4:5)
-```python
-submagic_export_project(project_id, width=1080, height=1350)
-```
-
----
-
-## Important Notes
-
-### Workflow
-- Create → Wait 2-10 min → (Optional) Update → Re-export → Download
-- After updating, MUST re-export to apply changes
-- Can iterate multiple times for refinement
-
-### Limitations
-- Videos must be publicly accessible URLs (no local files yet)
-- Max: 2GB file size, 2 hours duration
-- Formats: MP4, MOV input | MP4, MOV output
-- `remove_bad_takes` adds 1-2 minutes processing time
-
-### Dashboard vs API
-Some dashboard features are NOT available via API:
-- Correct Eye Contact (AI)
-- Clean Audio enhancement
-- Generate Hook Title (AI)
-- Explicit aspect ratio parameter (use export dimensions instead)
-
-See `docs/API_LIMITATIONS_DISCOVERED.md` for full analysis.
-
----
-
-## Troubleshooting
-
-**Server won't start:**
 ```bash
-pip install -r requirements.txt
-python -c "from submagic_mcp import app; print('OK')"
+python tests/test_server.py
 ```
 
-**Authentication failed:**
-- Check `.env` file has correct API key
-- Key must start with `sk-`
+### Project Structure
 
-**Project stuck processing:**
-- Normal: 2-10 minutes
-- Large videos: up to 15 minutes
-- Check every 30-60 seconds
-
----
-
-## Pricing
-
-- **Free Trial:** 3 videos with watermark
-- **Starter:** $14/month - 20 videos
-- **Growth:** $40/month - Unlimited
-- **Business:** $60/month - Unlimited + features
-
-https://www.submagic.co/pricing
-
----
-
-## Resources
-
-- **API Docs:** https://docs.submagic.co
-- **Sign Up:** https://app.submagic.co/signup
-- **Templates:** https://www.submagic.co/templates
-- **MCP Protocol:** https://modelcontextprotocol.io
-
----
+```
+submagic-mcp-server/
+├── submagic_mcp.py      # Main server implementation
+├── tests/               # Test suite
+├── docs/                # API documentation
+├── pyproject.toml       # Package configuration
+└── requirements.txt     # Dependencies
+```
 
 ## License
 
 MIT
+
+## Resources
+
+- API Documentation: https://docs.submagic.co
+- Get API Key: https://app.submagic.co/signup
+- MCP Protocol: https://modelcontextprotocol.io
